@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAISON — Tienda Boutique </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Karla:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-[#f7f4ef] text-[#1c1a17]">
+  
+  <!-- ENCABEZADO Y NAVEGACIÓN PRINCIPAL -->
+  <header class="sticky top-0 z-40 bg-[#f7f4ef]/95 backdrop-blur border-b border-black/10">
+    <nav class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 py-4 gap-4">
+      <a href="#" class="font-serif text-2xl tracking-[0.3em]">MAISON</a>
+      
+      <!-- BOTONES DE PESTAÑAS (AQUí SE AÑADIÓ CONSULTAS AL LADO DE PEDIDOS) -->
+      <div class="flex flex-wrap justify-center gap-6 text-sm uppercase tracking-widest">
+        <button class="nav-tab-btn active font-bold border-b-2 border-black pb-1" onclick="switchMainTab('tienda-section', event)">Tienda</button>
+        <button class="nav-tab-btn pb-1" onclick="switchMainTab('registro-section', event)">Registrarse</button>
+        <button class="nav-tab-btn pb-1" onclick="switchMainTab('admin-section', event)">Administrar Productos</button>
+        <button class="nav-tab-btn pb-1" onclick="switchMainTab('pedidos-section', event)">Pedidos</button>
+        <button class="nav-tab-btn pb-1" onclick="switchMainTab('consultas-section', event)">Consultas</button>
+      </div>
+
+      <button id="btnCarrito" class="relative text-sm uppercase tracking-widest flex items-center gap-1">
+        Carrito <span id="carritoCount" class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#1c1a17] text-[#f7f4ef] text-xs">0</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- SECCIÓN 1: TIENDA Y CATÁLOGO -->
+  <div id="tienda-section" class="main-tab-content active">
+    <section class="relative h-[70vh] overflow-hidden">
+      <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1800" alt="Colección" class="absolute inset-0 h-full w-full object-cover" />
+      <div class="absolute inset-0 bg-black/35"></div>
+      <div class="relative z-10 flex h-full flex-col items-start justify-end max-w-7xl mx-auto px-6 pb-20 text-white">
+        <p class="uppercase tracking-[0.4em] text-xs mb-4">Colección Otoño 2026</p>
+        <h1 class="font-serif text-5xl md:text-7xl leading-none max-w-2xl">Elegancia que se siente natural.</h1>
+      </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-6 py-20">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+        <h2 class="font-serif text-4xl">Catálogo Exclusivo</h2>
+        <div id="filtros" class="flex flex-wrap gap-2"></div>
+      </div>
+      <div id="productos" class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"></div>
+    </main>
+  </div>
+
+  <!-- SECCIÓN 2: REGISTRARSE -->
+  <div id="registro-section" class="main-tab-content hidden max-w-4xl mx-auto px-6 py-20">
+    <h2 class="font-serif text-4xl mb-8">Registrarse</h2>
+    <form id="formCliente" class="grid md:grid-cols-2 gap-4 bg-white p-8 rounded shadow-sm border border-black/5">
+      <div class="md:col-span-2">
+        <label class="block text-xs uppercase tracking-widest mb-1">Nombre completo</label>
+        <input name="nombre" required maxlength="120" placeholder="Ej. Juan Pérez" class="input border border-black/20 p-2 w-full" />
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-widest mb-1">Correo electrónico</label>
+        <input name="correo" type="email" required maxlength="160" placeholder="correo@ejemplo.com" class="input border border-black/20 p-2 w-full" />
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-widest mb-1">Teléfono</label>
+        <input name="telefono" maxlength="20" placeholder="5512345678" class="input border border-black/20 p-2 w-full" />
+      </div>
+      <div class="md:col-span-2 mt-4">
+        <button type="submit" class="btn w-full">Registrarse</button>
+      </div>
+    </form>
+
+    <div class="mt-12 bg-white p-8 rounded shadow-sm border border-black/5">
+      <h3 class="font-serif text-2xl mb-4">Clientes Registrados</h3>
+      <ul id="listaClientes" class="divide-y divide-black/10 max-h-60 overflow-auto"></ul>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: ADMINISTRAR PRODUCTOS Y CATEGORÍAS -->
+  <div id="admin-section" class="main-tab-content hidden max-w-4xl mx-auto px-6 py-20 space-y-12">
+    
+    <!-- NUEVO FORMULARIO PARA AGREGAR CATEGORÍAS -->
+    <div>
+      <h2 class="font-serif text-4xl mb-6">Agregar Nueva Categoría</h2>
+      <form id="formCategoria" class="grid md:grid-cols-2 gap-4 bg-white p-8 rounded shadow-sm border border-black/5">
+        <div class="md:col-span-2">
+          <label class="block text-xs uppercase tracking-widest mb-1">Nombre de la Categoría</label>
+          <input name="nombre" required maxlength="80" placeholder="Ej. Calzado, Accesorios, etc." class="input border border-black/20 p-2 w-full" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-xs uppercase tracking-widest mb-1">Descripción</label>
+          <input name="descripcion" maxlength="255" placeholder="Breve descripción de la categoría" class="input border border-black/20 p-2 w-full" />
+        </div>
+        <div class="md:col-span-2 mt-2">
+          <button type="submit" class="btn w-full">Guardar Categoría</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- FORMULARIO DE PRODUCTOS -->
+    <div>
+      <h2 class="font-serif text-4xl mb-6">Agregar o Editar Producto</h2>
+      <form id="formProducto" class="grid md:grid-cols-2 gap-4 bg-white p-8 rounded shadow-sm border border-black/5">
+        <input type="hidden" name="id" />
+        <input name="nombre" required maxlength="120" placeholder="Nombre del producto" class="input border border-black/20 p-2" />
+        <select name="categoria_id" required class="input border border-black/20 p-2" id="selectCategoria"></select>
+        <input name="precio" type="number" min="0" step="0.01" required placeholder="Precio (MXN)" class="input border border-black/20 p-2" />
+        <input name="stock" type="number" min="0" step="1" required placeholder="Stock" class="input border border-black/20 p-2" />
+        <input name="imagen_url" type="url" maxlength="500" placeholder="URL de imagen" class="input md:col-span-2 border border-black/20 p-2" />
+        <textarea name="descripcion" rows="3" maxlength="1000" placeholder="Descripción" class="input md:col-span-2 border border-black/20 p-2"></textarea>
+        <div class="md:col-span-2 flex gap-3">
+          <button class="btn" id="btnGuardarProducto">Guardar producto</button>
+          <button type="button" id="btnCancelarEdicion" class="btn-outline hidden">Cancelar edición</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- SECCIÓN 4: PEDIDOS -->
+  <div id="pedidos-section" class="main-tab-content hidden max-w-6xl mx-auto px-6 py-20">
+    <h2 class="font-serif text-4xl mb-8">Gestión de Pedidos</h2>
+    <div class="overflow-x-auto bg-white p-6 rounded shadow-sm">
+      <table class="w-full text-left text-sm">
+        <thead class="uppercase tracking-widest text-xs text-black/50 border-b border-black/10">
+          <tr><th class="py-3">#</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Fecha</th></tr>
+        </thead>
+        <tbody id="tablaPedidos" class="divide-y divide-black/10"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 5: CONSULTAS (STOCK Y VENTAS) -->
+  <div id="consultas-section" class="main-tab-content hidden max-w-6xl mx-auto px-6 py-20">
+    <div class="mb-6">
+      <h1 class="font-serif text-4xl mb-2">Consultas</h1>
+      <p class="text-gray-500 text-sm">Monitorea en tiempo real el inventario disponible y el historial de artículos vendidos.</p>
+    </div>
+
+    <!-- Pestañas internas de consultas -->
+    <div class="flex border-b border-black/10 mb-6 gap-6">
+      <button onclick="cambiarSubSeccionConsultas('stock')" id="subtab-stock" class="pb-2 font-bold border-b-2 border-black uppercase text-sm tracking-widest transition-all">
+        📦 En Stock
+      </button>
+      <button onclick="cambiarSubSeccionConsultas('ventas')" id="subtab-ventas" class="pb-2 text-gray-400 hover:text-black uppercase text-sm tracking-widest transition-all">
+        🛒 Cosas Vendidas
+      </button>
+    </div>
+
+    <!-- SUBVISTA 1: STOCK -->
+    <div id="subvista-stock" class="bg-white p-6 rounded shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="uppercase tracking-widest text-xs text-black/50 border-b border-black/10">
+            <tr>
+              <th class="py-3">Código / ID</th>
+              <th>Producto</th>
+              <th>Categoría / Talla</th>
+              <th>Stock Disponible</th>
+              <th>Precio</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-stock-content" class="divide-y divide-black/10">
+            <!-- Los datos reales de stock se cargan de forma dinámica aquí -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUBVISTA 2: COSAS VENDIDAS -->
+    <div id="subvista-ventas" class="bg-white p-6 rounded shadow-sm hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="uppercase tracking-widest text-xs text-black/50 border-b border-black/10">
+            <tr>
+              <th class="py-3">ID Venta</th>
+              <th>Producto Vendido</th>
+              <th>Cantidad</th>
+              <th>Total Cobrado</th>
+              <th>Fecha y Hora</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-ventas-content" class="divide-y divide-black/10">
+            <!-- Los datos reales de ventas se cargan de forma dinámica aquí -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer class="border-t border-black/10 py-10 text-center text-xs uppercase tracking-widest text-black/50 mt-20">
+    © 2026 MAISON — Hecho por Abraham
+  </footer>
+
+  <!-- CARRITO LATERAL -->
+  <aside id="carrito" class="fixed inset-y-0 right-0 z-50 w-full max-w-md translate-x-full bg-[#f7f4ef] shadow-2xl transition-transform duration-300 flex flex-col">
+    <div class="flex items-center justify-between p-6 border-b border-black/10">
+      <h3 class="font-serif text-2xl">Tu carrito</h3>
+      <button id="cerrarCarrito" class="text-2xl leading-none" aria-label="Cerrar">&times;</button>
+    </div>
+    <ul id="itemsCarrito" class="flex-1 overflow-auto p-6 space-y-4"></ul>
+    <form id="formPedido" class="p-6 border-t border-black/10 space-y-4">
+      <div class="flex justify-between text-lg"><span>Total</span><strong id="totalCarrito">$0.00</strong></div>
+      <select name="cliente_id" id="selectCliente" required class="input border border-black/20 p-2 w-full"></select>
+      <button class="btn w-full">Confirmar pedido</button>
+    </form>
+  </aside>
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/40 hidden"></div>
+
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] hidden rounded px-6 py-3 text-sm text-white shadow-lg"></div>
+
+  <script src="script.js"></script>
+
+  <!-- Script auxiliar para alternar las subpestañas de Stock y Ventas -->
+  <script>
+    function cambiarSubSeccionConsultas(tipo) {
+      const subvistaStock = document.getElementById('subvista-stock');
+      const subvistaVentas = document.getElementById('subvista-ventas');
+      const subtabStock = document.getElementById('subtab-stock');
+      const subtabVentas = document.getElementById('subtab-ventas');
+
+      if (tipo === 'stock') {
+        subvistaStock.classList.remove('hidden');
+        subvistaVentas.classList.add('hidden');
+        
+        subtabStock.className = "pb-2 font-bold border-b-2 border-black uppercase text-sm tracking-widest transition-all";
+        subtabVentas.className = "pb-2 text-gray-400 hover:text-black uppercase text-sm tracking-widest transition-all";
+      } else {
+        subvistaVentas.classList.remove('hidden');
+        subvistaStock.classList.add('hidden');
+        
+        subtabVentas.className = "pb-2 font-bold border-b-2 border-black uppercase text-sm tracking-widest transition-all";
+        subtabStock.className = "pb-2 text-gray-400 hover:text-black uppercase text-sm tracking-widest transition-all";
+      }
+    }
+  </script>
+</body>
+</html>
