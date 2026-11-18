@@ -1,219 +1,419 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MAISON — Tienda Boutique </title>
+  <title>MAISON — Boutique Contemporánea</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Karla:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Karla:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            sans: ['"Karla"', 'sans-serif'],
+          },
+          colors: {
+            cream: '#f7f4ef',
+            sand: '#efeae1',
+            ink: '#1c1a17',
+            muted: '#6e6a63',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Estilos base refinados para mantener compatibilidad con tus clases actuales */
+    body {
+      font-family: 'Karla', sans-serif;
+      background-color: #f7f4ef;
+      color: #1c1a17;
+      -webkit-font-smoothing: antialiased;
+    }
+    .input {
+      background-color: #faf9f6;
+      border: 1px solid rgba(28, 26, 23, 0.18);
+      padding: 0.75rem 0.9rem;
+      font-size: 0.925rem;
+      border-radius: 2px;
+      transition: all 0.25s ease;
+      outline: none;
+    }
+    .input:focus {
+      background-color: #ffffff;
+      border-color: #1c1a17;
+      box-shadow: 0 0 0 1px #1c1a17;
+    }
+    .btn {
+      background-color: #1c1a17;
+      color: #f7f4ef;
+      padding: 0.85rem 1.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #36322c;
+      transform: translateY(-1px);
+    }
+    .btn-outline {
+      background-color: transparent;
+      color: #1c1a17;
+      border: 1px solid rgba(28, 26, 23, 0.3);
+      padding: 0.85rem 1.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      border-radius: 2px;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    .btn-outline:hover {
+      border-color: #1c1a17;
+      background-color: rgba(28, 26, 23, 0.04);
+    }
+    /* Animación suave al cambiar de pestaña */
+    .main-tab-content {
+      animation: fadeIn 0.35s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
-<body class="bg-[#f7f4ef] text-[#1c1a17]">
-  
+<body class="bg-cream text-ink flex flex-col min-h-screen selection:bg-ink selection:text-cream">
+
+  <!-- BARRA SUPERIOR DE ANUNCIO -->
+  <div class="bg-ink text-cream text-[11px] uppercase tracking-[0.25em] text-center py-2 px-4">
+    Envíos sin costo en pedidos superiores a $1,499 MXN
+  </div>
+
   <!-- ENCABEZADO Y NAVEGACIÓN PRINCIPAL -->
-  <header class="sticky top-0 z-40 bg-[#f7f4ef]/95 backdrop-blur border-b border-black/10">
-    <nav class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 py-4 gap-4">
-      <a href="#" class="font-serif text-2xl tracking-[0.3em]">MAISON</a>
+  <header class="sticky top-0 z-40 bg-cream/95 backdrop-blur-md border-b border-ink/10 transition-all">
+    <nav class="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-8 h-16 md:h-20">
       
-      <!-- BOTONES DE PESTAÑAS (AQUí SE AÑADIÓ CONSULTAS AL LADO DE PEDIDOS) -->
-      <div class="flex flex-wrap justify-center gap-6 text-sm uppercase tracking-widest">
-        <button class="nav-tab-btn active font-bold border-b-2 border-black pb-1" onclick="switchMainTab('tienda-section', event)">Tienda</button>
-        <button class="nav-tab-btn pb-1" onclick="switchMainTab('registro-section', event)">Registrarse</button>
-        <button class="nav-tab-btn pb-1" onclick="switchMainTab('admin-section', event)">Administrar Productos</button>
-        <button class="nav-tab-btn pb-1" onclick="switchMainTab('pedidos-section', event)">Pedidos</button>
-        <button class="nav-tab-btn pb-1" onclick="switchMainTab('consultas-section', event)">Consultas</button>
+      <!-- Botón Hamburguesa (Solo visible en Móvil) -->
+      <button id="btnMenuMovil" onclick="toggleMenuMovil()" aria-label="Abrir menú" class="lg:hidden p-2 -ml-2 text-ink hover:opacity-70 transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+        </svg>
+      </button>
+
+      <!-- Logo -->
+      <a href="#" onclick="switchMainTab('tienda-section', event)" class="font-serif text-2xl sm:text-3xl tracking-[0.35em] font-medium text-ink">
+        MAISON
+      </a>
+
+      <!-- Navegación Desktop -->
+      <div class="hidden lg:flex items-center gap-8 text-xs uppercase tracking-[0.2em] text-ink/75">
+        <button class="nav-tab-btn active font-semibold text-ink border-b border-ink pb-1 transition-all hover:text-ink" onclick="switchMainTab('tienda-section', event)">Tienda</button>
+        <button class="nav-tab-btn pb-1 border-b border-transparent transition-all hover:text-ink" onclick="switchMainTab('registro-section', event)">Registrarse</button>
+        <button class="nav-tab-btn pb-1 border-b border-transparent transition-all hover:text-ink" onclick="switchMainTab('admin-section', event)">Administrar</button>
+        <button class="nav-tab-btn pb-1 border-b border-transparent transition-all hover:text-ink" onclick="switchMainTab('pedidos-section', event)">Pedidos</button>
+        <button class="nav-tab-btn pb-1 border-b border-transparent transition-all hover:text-ink" onclick="switchMainTab('consultas-section', event)">Consultas</button>
       </div>
 
-      <button id="btnCarrito" class="relative text-sm uppercase tracking-widest flex items-center gap-1">
-        Carrito <span id="carritoCount" class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#1c1a17] text-[#f7f4ef] text-xs">0</span>
+      <!-- Botón Carrito -->
+      <button id="btnCarrito" class="relative text-xs uppercase tracking-[0.2em] font-medium flex items-center gap-2 py-2 px-3 rounded-sm hover:bg-ink/5 transition">
+        <span class="hidden sm:inline">Bolsa</span>
+        <svg class="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+        </svg>
+        <span id="carritoCount" class="inline-flex h-5 min-w-[20px] px-1 items-center justify-center rounded-full bg-ink text-cream text-[11px] font-semibold">0</span>
       </button>
     </nav>
   </header>
 
-  <!-- SECCIÓN 1: TIENDA Y CATÁLOGO -->
-  <div id="tienda-section" class="main-tab-content active">
-    <section class="relative h-[70vh] overflow-hidden">
-      <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1800" alt="Colección" class="absolute inset-0 h-full w-full object-cover" />
-      <div class="absolute inset-0 bg-black/35"></div>
-      <div class="relative z-10 flex h-full flex-col items-start justify-end max-w-7xl mx-auto px-6 pb-20 text-white">
-        <p class="uppercase tracking-[0.4em] text-xs mb-4">Colección Otoño 2026</p>
-        <h1 class="font-serif text-5xl md:text-7xl leading-none max-w-2xl">Elegancia que se siente natural.</h1>
-      </div>
-    </section>
-
-    <main class="max-w-7xl mx-auto px-6 py-20">
-      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
-        <h2 class="font-serif text-4xl">Catálogo Exclusivo</h2>
-        <div id="filtros" class="flex flex-wrap gap-2"></div>
-      </div>
-      <div id="productos" class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"></div>
-    </main>
-  </div>
-
-  <!-- SECCIÓN 2: REGISTRARSE -->
-  <div id="registro-section" class="main-tab-content hidden max-w-4xl mx-auto px-6 py-20">
-    <h2 class="font-serif text-4xl mb-8">Registrarse</h2>
-    <form id="formCliente" class="grid md:grid-cols-2 gap-4 bg-white p-8 rounded shadow-sm border border-black/5">
-      <div class="md:col-span-2">
-        <label class="block text-xs uppercase tracking-widest mb-1">Nombre completo</label>
-        <input name="nombre" required maxlength="120" placeholder="Ej. Juan Pérez" class="input border border-black/20 p-2 w-full" />
-      </div>
-      <div>
-        <label class="block text-xs uppercase tracking-widest mb-1">Correo electrónico</label>
-        <input name="correo" type="email" required maxlength="160" placeholder="correo@ejemplo.com" class="input border border-black/20 p-2 w-full" />
-      </div>
-      <div>
-        <label class="block text-xs uppercase tracking-widest mb-1">Teléfono</label>
-        <input name="telefono" maxlength="20" placeholder="5512345678" class="input border border-black/20 p-2 w-full" />
-      </div>
-      <div class="md:col-span-2 mt-4">
-        <button type="submit" class="btn w-full">Registrarse</button>
-      </div>
-    </form>
-
-    <div class="mt-12 bg-white p-8 rounded shadow-sm border border-black/5">
-      <h3 class="font-serif text-2xl mb-4">Clientes Registrados</h3>
-      <ul id="listaClientes" class="divide-y divide-black/10 max-h-60 overflow-auto"></ul>
-    </div>
-  </div>
-
-  <!-- SECCIÓN 3: ADMINISTRAR PRODUCTOS Y CATEGORÍAS -->
-  <div id="admin-section" class="main-tab-content hidden max-w-4xl mx-auto px-6 py-20 space-y-12">
-    
-    <!-- NUEVO FORMULARIO PARA AGREGAR CATEGORÍAS -->
+  <!-- MENÚ DESPLEGABLE MÓVIL (DRAWER) -->
+  <div id="menuMovilOverlay" onclick="toggleMenuMovil()" class="fixed inset-0 z-50 bg-ink/40 backdrop-blur-xs hidden lg:hidden"></div>
+  <aside id="menuMovilDrawer" class="fixed inset-y-0 left-0 z-50 w-72 bg-cream shadow-2xl -translate-x-full transition-transform duration-300 ease-out flex flex-col justify-between p-6 lg:hidden">
     <div>
-      <h2 class="font-serif text-4xl mb-6">Agregar Nueva Categoría</h2>
-      <form id="formCategoria" class="grid md:grid-cols-2 gap-4 bg-white p-8 rounded shadow-sm border border-black/5">
-        <div class="md:col-span-2">
-          <label class="block text-xs uppercase tracking-widest mb-1">Nombre de la Categoría</label>
-          <input name="nombre" required maxlength="80" placeholder="Ej. Calzado, Accesorios, etc." class="input border border-black/20 p-2 w-full" />
+      <div class="flex items-center justify-between pb-6 border-b border-ink/10">
+        <span class="font-serif text-xl tracking-[0.3em]">MAISON</span>
+        <button onclick="toggleMenuMovil()" aria-label="Cerrar menú" class="text-2xl leading-none p-1 text-ink/70 hover:text-ink">&times;</button>
+      </div>
+      <nav class="flex flex-col space-y-5 mt-8 text-xs uppercase tracking-[0.22em]">
+        <button class="text-left py-1 font-semibold text-ink" onclick="navegarMovil('tienda-section', event)">01. Tienda &amp; Catálogo</button>
+        <button class="text-left py-1 text-ink/75 hover:text-ink" onclick="navegarMovil('registro-section', event)">02. Registro de Clientes</button>
+        <button class="text-left py-1 text-ink/75 hover:text-ink" onclick="navegarMovil('admin-section', event)">03. Administrar Productos</button>
+        <button class="text-left py-1 text-ink/75 hover:text-ink" onclick="navegarMovil('pedidos-section', event)">04. Gestión de Pedidos</button>
+        <button class="text-left py-1 text-ink/75 hover:text-ink" onclick="navegarMovil('consultas-section', event)">05. Consultas &amp; Stock</button>
+      </nav>
+    </div>
+    <div class="pt-6 border-t border-ink/10 text-[11px] uppercase tracking-widest text-muted">
+      Colección Otoño / Invierno 2026
+    </div>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="flex-1">
+
+    <!-- SECCIÓN 1: TIENDA Y CATÁLOGO -->
+    <div id="tienda-section" class="main-tab-content active">
+      <section class="relative h-[65vh] md:h-[82vh] overflow-hidden bg-ink">
+        <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1800&q=85" alt="Colección Otoño 2026" class="absolute inset-0 h-full w-full object-cover object-center opacity-90 scale-105 transition-transform duration-1000" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent"></div>
+        <div class="relative z-10 flex h-full flex-col items-start justify-end max-w-7xl mx-auto px-5 sm:px-8 pb-14 md:pb-24 text-white">
+          <span class="inline-block border border-white/40 px-3 py-1 uppercase tracking-[0.35em] text-[10px] sm:text-xs mb-4 backdrop-blur-xs">
+            Colección Otoño 2026
+          </span>
+          <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl font-normal leading-[1.05] max-w-2xl mb-6">
+            Elegancia que se siente natural.
+          </h1>
+          <a href="#catalogo" class="inline-flex items-center gap-3 bg-cream text-ink px-6 py-3.5 text-xs uppercase tracking-[0.22em] font-semibold hover:bg-white transition">
+            Explorar piezas
+            <span aria-hidden="true">&rarr;</span>
+          </a>
         </div>
-        <div class="md:col-span-2">
-          <label class="block text-xs uppercase tracking-widest mb-1">Descripción</label>
-          <input name="descripcion" maxlength="255" placeholder="Breve descripción de la categoría" class="input border border-black/20 p-2 w-full" />
+      </section>
+
+      <main id="catalogo" class="max-w-7xl mx-auto px-5 sm:px-8 py-16 md:py-24">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 mb-12 border-b border-ink/10">
+          <div>
+            <p class="text-[11px] uppercase tracking-[0.3em] text-muted mb-2">Selección Curada</p>
+            <h2 class="font-serif text-3xl sm:text-5xl font-normal">Catálogo Exclusivo</h2>
+          </div>
+          <div id="filtros" class="flex flex-wrap gap-2"></div>
         </div>
-        <div class="md:col-span-2 mt-2">
-          <button type="submit" class="btn w-full">Guardar Categoría</button>
+
+        <div id="productos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12"></div>
+      </main>
+    </div>
+
+    <!-- SECCIÓN 2: REGISTRARSE -->
+    <div id="registro-section" class="main-tab-content hidden max-w-5xl mx-auto px-5 sm:px-8 py-14 md:py-20">
+      <div class="mb-10">
+        <p class="text-[11px] uppercase tracking-[0.3em] text-muted mb-2">Comunidad MAISON</p>
+        <h2 class="font-serif text-3xl sm:text-5xl font-normal">Registro de Clientes</h2>
+      </div>
+
+      <div class="grid lg:grid-cols-12 gap-8 items-start">
+        <form id="formCliente" class="lg:col-span-7 grid sm:grid-cols-2 gap-5 bg-white p-6 sm:p-10 rounded-sm shadow-xs border border-ink/10">
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] uppercase tracking-[0.2em] text-muted mb-2">Nombre completo *</label>
+            <input name="nombre" required maxlength="120" placeholder="Ej. Sofía Hernández" class="input w-full" />
+          </div>
+          <div>
+            <label class="block text-[11px] uppercase tracking-[0.2em] text-muted mb-2">Correo electrónico *</label>
+            <input name="correo" type="email" required maxlength="160" placeholder="correo@ejemplo.com" class="input w-full" />
+          </div>
+          <div>
+            <label class="block text-[11px] uppercase tracking-[0.2em] text-muted mb-2">Teléfono de contacto</label>
+            <input name="telefono" maxlength="20" placeholder="55 1234 5678" class="input w-full" />
+          </div>
+          <div class="sm:col-span-2 pt-2">
+            <button type="submit" class="btn w-full">Completar Registro</button>
+          </div>
+        </form>
+
+        <div class="lg:col-span-5 bg-white p-6 sm:p-8 rounded-sm shadow-xs border border-ink/10">
+          <div class="flex items-center justify-between border-b border-ink/10 pb-4 mb-4">
+            <h3 class="font-serif text-2xl">Clientes Activos</h3>
+            <span class="text-[10px] uppercase tracking-widest text-muted">Directorio</span>
+          </div>
+          <ul id="listaClientes" class="divide-y divide-ink/10 max-h-72 overflow-y-auto text-sm pr-1"></ul>
         </div>
-      </form>
-    </div>
-
-    <!-- FORMULARIO DE PRODUCTOS -->
-    <div>
-      <h2 class="font-serif text-4xl mb-6">Agregar o Editar Producto</h2>
-      <form id="formProducto" class="grid md:grid-cols-2 gap-4 bg-white p-8 rounded shadow-sm border border-black/5">
-        <input type="hidden" name="id" />
-        <input name="nombre" required maxlength="120" placeholder="Nombre del producto" class="input border border-black/20 p-2" />
-        <select name="categoria_id" required class="input border border-black/20 p-2" id="selectCategoria"></select>
-        <input name="precio" type="number" min="0" step="0.01" required placeholder="Precio (MXN)" class="input border border-black/20 p-2" />
-        <input name="stock" type="number" min="0" step="1" required placeholder="Stock" class="input border border-black/20 p-2" />
-        <input name="imagen_url" type="url" maxlength="500" placeholder="URL de imagen" class="input md:col-span-2 border border-black/20 p-2" />
-        <textarea name="descripcion" rows="3" maxlength="1000" placeholder="Descripción" class="input md:col-span-2 border border-black/20 p-2"></textarea>
-        <div class="md:col-span-2 flex gap-3">
-          <button class="btn" id="btnGuardarProducto">Guardar producto</button>
-          <button type="button" id="btnCancelarEdicion" class="btn-outline hidden">Cancelar edición</button>
-        </div>
-      </form>
-    </div>
-
-  </div>
-
-  <!-- SECCIÓN 4: PEDIDOS -->
-  <div id="pedidos-section" class="main-tab-content hidden max-w-6xl mx-auto px-6 py-20">
-    <h2 class="font-serif text-4xl mb-8">Gestión de Pedidos</h2>
-    <div class="overflow-x-auto bg-white p-6 rounded shadow-sm">
-      <table class="w-full text-left text-sm">
-        <thead class="uppercase tracking-widest text-xs text-black/50 border-b border-black/10">
-          <tr><th class="py-3">#</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Fecha</th></tr>
-        </thead>
-        <tbody id="tablaPedidos" class="divide-y divide-black/10"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- SECCIÓN 5: CONSULTAS (STOCK Y VENTAS) -->
-  <div id="consultas-section" class="main-tab-content hidden max-w-6xl mx-auto px-6 py-20">
-    <div class="mb-6">
-      <h1 class="font-serif text-4xl mb-2">Consultas</h1>
-      <p class="text-gray-500 text-sm">Monitorea en tiempo real el inventario disponible y el historial de artículos vendidos.</p>
-    </div>
-
-    <!-- Pestañas internas de consultas -->
-    <div class="flex border-b border-black/10 mb-6 gap-6">
-      <button onclick="cambiarSubSeccionConsultas('stock')" id="subtab-stock" class="pb-2 font-bold border-b-2 border-black uppercase text-sm tracking-widest transition-all">
-        📦 En Stock
-      </button>
-      <button onclick="cambiarSubSeccionConsultas('ventas')" id="subtab-ventas" class="pb-2 text-gray-400 hover:text-black uppercase text-sm tracking-widest transition-all">
-        🛒 Cosas Vendidas
-      </button>
-    </div>
-
-    <!-- SUBVISTA 1: STOCK -->
-    <div id="subvista-stock" class="bg-white p-6 rounded shadow-sm">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead class="uppercase tracking-widest text-xs text-black/50 border-b border-black/10">
-            <tr>
-              <th class="py-3">Código / ID</th>
-              <th>Producto</th>
-              <th>Categoría / Talla</th>
-              <th>Stock Disponible</th>
-              <th>Precio</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-stock-content" class="divide-y divide-black/10">
-            <!-- Los datos reales de stock se cargan de forma dinámica aquí -->
-          </tbody>
-        </table>
       </div>
     </div>
 
-    <!-- SUBVISTA 2: COSAS VENDIDAS -->
-    <div id="subvista-ventas" class="bg-white p-6 rounded shadow-sm hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead class="uppercase tracking-widest text-xs text-black/50 border-b border-black/10">
-            <tr>
-              <th class="py-3">ID Venta</th>
-              <th>Producto Vendido</th>
-              <th>Cantidad</th>
-              <th>Total Cobrado</th>
-              <th>Fecha y Hora</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-ventas-content" class="divide-y divide-black/10">
-            <!-- Los datos reales de ventas se cargan de forma dinámica aquí -->
-          </tbody>
-        </table>
+    <!-- SECCIÓN 3: ADMINISTRAR PRODUCTOS Y CATEGORÍAS -->
+    <div id="admin-section" class="main-tab-content hidden max-w-5xl mx-auto px-5 sm:px-8 py-14 md:py-20 space-y-14">
+      <div class="border-b border-ink/10 pb-6">
+        <p class="text-[11px] uppercase tracking-[0.3em] text-muted mb-2">Panel de Control</p>
+        <h2 class="font-serif text-3xl sm:text-5xl font-normal">Gestión de Inventario</h2>
+      </div>
+
+      <div class="grid lg:grid-cols-12 gap-10 items-start">
+        <!-- FORMULARIO CATEGORÍAS -->
+        <div class="lg:col-span-5">
+          <h3 class="font-serif text-2xl mb-4">Nueva Categoría</h3>
+          <form id="formCategoria" class="space-y-4 bg-white p-6 sm:p-8 rounded-sm shadow-xs border border-ink/10">
+            <div>
+              <label class="block text-[11px] uppercase tracking-[0.2em] text-muted mb-2">Nombre *</label>
+              <input name="nombre" required maxlength="80" placeholder="Ej. Sastrería, Accesorios" class="input w-full" />
+            </div>
+            <div>
+              <label class="block text-[11px] uppercase tracking-[0.2em] text-muted mb-2">Descripción breve</label>
+              <input name="descripcion" maxlength="255" placeholder="Prendas esenciales de temporada" class="input w-full" />
+            </div>
+            <div class="pt-2">
+              <button type="submit" class="btn w-full">Guardar Categoría</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- FORMULARIO DE PRODUCTOS -->
+        <div class="lg:col-span-7">
+          <h3 class="font-serif text-2xl mb-4">Agregar o Editar Pieza</h3>
+          <form id="formProducto" class="grid sm:grid-cols-2 gap-4 bg-white p-6 sm:p-8 rounded-sm shadow-xs border border-ink/10">
+            <input type="hidden" name="id" />
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] uppercase tracking-[0.2em] text-muted mb-1.5">Nombre del producto *</label>
+              <input name="nombre" required maxlength="120" placeholder="Ej. Abrigo Cruzado de Lana" class="input w-full" />
+            </div>
+            <div>
+              <label class="block text-[11px] uppercase tracking-[0.2em] text-muted mb-1.5">Categoría *</label>
+              <select name="categoria_id" required class="input w-full" id="selectCategoria"></select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] uppercase tracking-[0.2em] text-muted mb-1.5">Precio (MXN) *</label>
+                <input name="precio" type="number" min="0" step="0.01" required placeholder="0.00" class="input w-full" />
+              </div>
+              <div>
+                <label class="block text-[11px] uppercase tracking-[0.2em] text-muted mb-1.5">Stock *</label>
+                <input name="stock" type="number" min="0" step="1" required placeholder="10" class="input w-full" />
+              </div>
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] uppercase tracking-[0.2em] text-muted mb-1.5">URL de fotografía</label>
+              <input name="imagen_url" type="url" maxlength="500" placeholder="https://..." class="input w-full" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] uppercase tracking-[0.2em] text-muted mb-1.5">Detalles y composición</label>
+              <textarea name="descripcion" rows="3" maxlength="1000" placeholder="Corte relajado, 100% algodón orgánico..." class="input w-full"></textarea>
+            </div>
+            <div class="sm:col-span-2 flex flex-wrap gap-3 pt-2">
+              <button class="btn flex-1 sm:flex-none" id="btnGuardarProducto">Guardar producto</button>
+              <button type="button" id="btnCancelarEdicion" class="btn-outline hidden">Cancelar edición</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
+
+    <!-- SECCIÓN 4: PEDIDOS -->
+    <div id="pedidos-section" class="main-tab-content hidden max-w-6xl mx-auto px-5 sm:px-8 py-14 md:py-20">
+      <div class="mb-8">
+        <p class="text-[11px] uppercase tracking-[0.3em] text-muted mb-2">Historial Comercial</p>
+        <h2 class="font-serif text-3xl sm:text-5xl font-normal">Gestión de Pedidos</h2>
+      </div>
+      <div class="bg-white rounded-sm shadow-xs border border-ink/10 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead class="bg-sand/60 uppercase tracking-[0.18em] text-[11px] text-muted border-b border-ink/10">
+              <tr>
+                <th class="py-4 px-6 font-semibold">Orden #</th>
+                <th class="py-4 px-6 font-semibold">Cliente</th>
+                <th class="py-4 px-6 font-semibold">Total</th>
+                <th class="py-4 px-6 font-semibold">Estado</th>
+                <th class="py-4 px-6 font-semibold">Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="tablaPedidos" class="divide-y divide-ink/10"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 5: CONSULTAS (STOCK Y VENTAS) -->
+    <div id="consultas-section" class="main-tab-content hidden max-w-6xl mx-auto px-5 sm:px-8 py-14 md:py-20">
+      <div class="mb-8">
+        <p class="text-[11px] uppercase tracking-[0.3em] text-muted mb-2">Auditoría en Tiempo Real</p>
+        <h1 class="font-serif text-3xl sm:text-5xl font-normal mb-2">Consultas de Almacén</h1>
+        <p class="text-muted text-sm">Monitorea las existencias actuales y el registro histórico de artículos vendidos.</p>
+      </div>
+
+      <!-- Pestañas internas -->
+      <div class="flex border-b border-ink/10 mb-8 gap-8 overflow-x-auto">
+        <button onclick="cambiarSubSeccionConsultas('stock')" id="subtab-stock" class="pb-3 font-semibold border-b-2 border-ink uppercase text-xs tracking-[0.2em] whitespace-nowrap transition-all">
+          Inventario en Stock
+        </button>
+        <button onclick="cambiarSubSeccionConsultas('ventas')" id="subtab-ventas" class="pb-3 text-muted hover:text-ink uppercase text-xs tracking-[0.2em] whitespace-nowrap transition-all">
+          Artículos Vendidos
+        </button>
+      </div>
+
+      <!-- SUBVISTA 1: STOCK -->
+      <div id="subvista-stock" class="bg-white rounded-sm shadow-xs border border-ink/10 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead class="bg-sand/60 uppercase tracking-[0.18em] text-[11px] text-muted border-b border-ink/10">
+              <tr>
+                <th class="py-4 px-6 font-semibold">Código / ID</th>
+                <th class="py-4 px-6 font-semibold">Producto</th>
+                <th class="py-4 px-6 font-semibold">Categoría / Talla</th>
+                <th class="py-4 px-6 font-semibold">Stock Disponible</th>
+                <th class="py-4 px-6 font-semibold">Precio</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-stock-content" class="divide-y divide-ink/10"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SUBVISTA 2: COSAS VENDIDAS -->
+      <div id="subvista-ventas" class="bg-white rounded-sm shadow-xs border border-ink/10 overflow-hidden hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead class="bg-sand/60 uppercase tracking-[0.18em] text-[11px] text-muted border-b border-ink/10">
+              <tr>
+                <th class="py-4 px-6 font-semibold">ID Venta</th>
+                <th class="py-4 px-6 font-semibold">Producto Vendido</th>
+                <th class="py-4 px-6 font-semibold">Cantidad</th>
+                <th class="py-4 px-6 font-semibold">Total Cobrado</th>
+                <th class="py-4 px-6 font-semibold">Fecha y Hora</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-ventas-content" class="divide-y divide-ink/10"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <footer class="border-t border-black/10 py-10 text-center text-xs uppercase tracking-widest text-black/50 mt-20">
-    © 2026 MAISON — Hecho por Abraham
+  <!-- PIE DE PÁGINA EDITORIAL -->
+  <footer class="bg-sand/70 border-t border-ink/10 mt-20">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs uppercase tracking-[0.22em] text-muted">
+      <span class="font-serif text-lg tracking-[0.3em] text-ink">MAISON</span>
+      <span>© 2026 MAISON Boutique — Desarrollado por Abraham</span>
+    </div>
   </footer>
 
-  <!-- CARRITO LATERAL -->
-  <aside id="carrito" class="fixed inset-y-0 right-0 z-50 w-full max-w-md translate-x-full bg-[#f7f4ef] shadow-2xl transition-transform duration-300 flex flex-col">
-    <div class="flex items-center justify-between p-6 border-b border-black/10">
-      <h3 class="font-serif text-2xl">Tu carrito</h3>
-      <button id="cerrarCarrito" class="text-2xl leading-none" aria-label="Cerrar">&times;</button>
+  <!-- CARRITO LATERAL (DRAWER) -->
+  <aside id="carrito" class="fixed inset-y-0 right-0 z-50 w-full max-w-md translate-x-full bg-cream shadow-2xl transition-transform duration-300 ease-out flex flex-col">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-ink/10">
+      <div>
+        <h3 class="font-serif text-2xl">Tu Bolsa</h3>
+        <p class="text-[11px] uppercase tracking-widest text-muted">Resumen de selección</p>
+      </div>
+      <button id="cerrarCarrito" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-ink/5 text-2xl leading-none transition" aria-label="Cerrar">&times;</button>
     </div>
-    <ul id="itemsCarrito" class="flex-1 overflow-auto p-6 space-y-4"></ul>
-    <form id="formPedido" class="p-6 border-t border-black/10 space-y-4">
-      <div class="flex justify-between text-lg"><span>Total</span><strong id="totalCarrito">$0.00</strong></div>
-      <select name="cliente_id" id="selectCliente" required class="input border border-black/20 p-2 w-full"></select>
-      <button class="btn w-full">Confirmar pedido</button>
+    
+    <ul id="itemsCarrito" class="flex-1 overflow-y-auto p-6 space-y-4"></ul>
+    
+    <form id="formPedido" class="p-6 bg-white border-t border-ink/10 space-y-4">
+      <div class="flex justify-between items-baseline">
+        <span class="text-xs uppercase tracking-[0.2em] text-muted">Total estimado</span>
+        <strong id="totalCarrito" class="font-serif text-2xl font-semibold">$0.00</strong>
+      </div>
+      <div>
+        <label class="block text-[10px] uppercase tracking-[0.2em] text-muted mb-1.5">Seleccionar cliente</label>
+        <select name="cliente_id" id="selectCliente" required class="input w-full"></select>
+      </div>
+      <button class="btn w-full">Confirmar Pedido</button>
     </form>
   </aside>
-  <div id="overlay" class="fixed inset-0 z-40 bg-black/40 hidden"></div>
+  <div id="overlay" class="fixed inset-0 z-40 bg-ink/45 backdrop-blur-xs hidden transition-opacity"></div>
 
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] hidden rounded px-6 py-3 text-sm text-white shadow-lg"></div>
+  <!-- NOTIFICACIÓN TOAST -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] hidden rounded-sm bg-ink px-6 py-3.5 text-xs uppercase tracking-[0.18em] text-cream shadow-xl"></div>
 
   <script src="script.js"></script>
 
-  <!-- Script auxiliar para alternar las subpestañas de Stock y Ventas -->
+  <!-- Scripts auxiliares de UI (Subpestañas y Menú Móvil) -->
   <script>
     function cambiarSubSeccionConsultas(tipo) {
       const subvistaStock = document.getElementById('subvista-stock');
@@ -224,16 +424,36 @@
       if (tipo === 'stock') {
         subvistaStock.classList.remove('hidden');
         subvistaVentas.classList.add('hidden');
-        
-        subtabStock.className = "pb-2 font-bold border-b-2 border-black uppercase text-sm tracking-widest transition-all";
-        subtabVentas.className = "pb-2 text-gray-400 hover:text-black uppercase text-sm tracking-widest transition-all";
+        subtabStock.className = "pb-3 font-semibold border-b-2 border-ink uppercase text-xs tracking-[0.2em] whitespace-nowrap transition-all";
+        subtabVentas.className = "pb-3 text-muted hover:text-ink uppercase text-xs tracking-[0.2em] whitespace-nowrap transition-all";
       } else {
         subvistaVentas.classList.remove('hidden');
         subvistaStock.classList.add('hidden');
-        
-        subtabVentas.className = "pb-2 font-bold border-b-2 border-black uppercase text-sm tracking-widest transition-all";
-        subtabStock.className = "pb-2 text-gray-400 hover:text-black uppercase text-sm tracking-widest transition-all";
+        subtabVentas.className = "pb-3 font-semibold border-b-2 border-ink uppercase text-xs tracking-[0.2em] whitespace-nowrap transition-all";
+        subtabStock.className = "pb-3 text-muted hover:text-ink uppercase text-xs tracking-[0.2em] whitespace-nowrap transition-all";
       }
+    }
+
+    function toggleMenuMovil() {
+      const drawer = document.getElementById('menuMovilDrawer');
+      const overlay = document.getElementById('menuMovilOverlay');
+      const isClosed = drawer.classList.contains('-translate-x-full');
+
+      if (isClosed) {
+        drawer.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+      } else {
+        drawer.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      }
+    }
+
+    function navegarMovil(seccionId, event) {
+      if (typeof switchMainTab === 'function') {
+        switchMainTab(seccionId, event);
+      }
+      toggleMenuMovil();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   </script>
 </body>
