@@ -236,8 +236,26 @@ if (itemsCarritoEl) {
   });
 }
 
-const abrir = () => { $('#carrito')?.classList.add('translate-x-0'); $('#overlay')?.classList.remove('hidden'); };
-const cerrar = () => { $('#carrito')?.classList.add('translate-x-full'); $('#overlay')?.classList.add('hidden'); };
+// Control seguro del Carrito Lateral (Apertura y Cierre Correcto)
+const abrir = () => { 
+  const carrito = $('#carrito');
+  const overlay = $('#overlay');
+  if (carrito) {
+    carrito.classList.remove('translate-x-full');
+    carrito.classList.add('translate-x-0');
+  }
+  if (overlay) overlay.classList.remove('hidden'); 
+};
+
+const cerrar = () => { 
+  const carrito = $('#carrito');
+  const overlay = $('#overlay');
+  if (carrito) {
+    carrito.classList.remove('translate-x-0');
+    carrito.classList.add('translate-x-full');
+  }
+  if (overlay) overlay.classList.add('hidden'); 
+};
 
 $('#btnCarrito')?.addEventListener('click', abrir);
 $('#cerrarCarrito')?.addEventListener('click', cerrar);
@@ -316,7 +334,6 @@ async function cargarStock() {
 async function cargarVentas() {
   try {
     const pedidos = await api('/pedidos');
-    // Filtramos los pedidos que estén pagados, enviados o entregados para considerarlos ventas concretadas
     const ventasValidas = pedidos.filter(p => ['pagado', 'enviado', 'entregado'].includes(p.estado));
     const tablaVentas = $('#tabla-ventas-content');
     if (tablaVentas) {
