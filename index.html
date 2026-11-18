@@ -455,19 +455,44 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // --- FUNCIÓN PARA ELIMINAR CLIENTES ---
-    async function eliminarClienteUI(id, nombreCliente) {
+    // --- FUNCIÓN MEJORADA PARA ELIMINAR CLIENTES ---
+    async function eliminarClienteUI(indexEnLista, nombreCliente, idDirecto) {
+      let id = idDirecto;
+
       if (!id) {
-        alert("No se pudo identificar el ID del cliente.");
+        const selectCliente = document.getElementById('selectCliente');
+        if (selectCliente) {
+          const opcionesValidas = Array.from(selectCliente.options).filter(opt => opt.value && opt.value.trim() !== "");
+          if (opcionesValidas[indexEnLista]) {
+            id = opcionesValidas[indexEnLista].value;
+          }
+        }
+      }
+
+      if (!id) {
+        try {
+          let r = await fetch('/api/clientes');
+          if (r.status === 404) r = await fetch('/clientes');
+          if (r.ok) {
+            const listaApi = await r.json();
+            if (Array.isArray(listaApi) && listaApi[indexEnLista]) {
+              id = listaApi[indexEnLista].id || listaApi[indexEnLista].cliente_id;
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      if (!id) {
+        alert("No se encontró el ID del cliente. Verifica tu backend.");
         return;
       }
+
       if (!confirm(`¿Seguro que deseas eliminar a "${nombreCliente}" del directorio?`)) return;
 
       try {
-        // Intenta con la ruta estándar /api/clientes/:id
         let res = await fetch(`/api/clientes/${id}`, { method: 'DELETE' });
-        
-        // Si tu backend usa /clientes/:id sin /api, hace el respaldo automático
         if (res.status === 404) {
           res = await fetch(`/clientes/${id}`, { method: 'DELETE' });
         }
@@ -479,17 +504,12 @@
             toast.classList.remove('hidden');
             setTimeout(() => toast.classList.add('hidden'), 3000);
           }
-          // Recarga la lista de clientes usando tu función existente en script.js
-          if (typeof cargarClientes === 'function') {
-            cargarClientes();
-          } else if (typeof loadClientes === 'function') {
-            loadClientes();
-          } else {
-            location.reload();
-          }
+          if (typeof cargarClientes === 'function') cargarClientes();
+          else if (typeof loadClientes === 'function') loadClientes();
+          else location.reload();
         } else {
           const errData = await res.json().catch(() => ({}));
-          alert(errData.error || errData.message || "No se pudo eliminar el cliente (puede tener pedidos asociados).");
+          alert(errData.error || errData.message || "Error al eliminar (puede tener pedidos asociados).");
         }
       } catch (err) {
         console.error("Error al eliminar cliente:", err);
@@ -500,7 +520,6 @@
     // Inyecta automáticamente el botón de eliminar en cada elemento de #listaClientes
     document.addEventListener('DOMContentLoaded', () => {
       const lista = document.getElementById('listaClientes');
-      const selectCliente = document.getElementById('selectCliente');
       if (!lista) return;
 
       const observer = new MutationObserver(() => {
@@ -508,12 +527,7 @@
         items.forEach((li, index) => {
           if (li.querySelector('.btn-eliminar-cliente')) return;
 
-          // Obtiene el ID desde data-id o emparejándolo con el <select id="selectCliente"> del carrito
-          let clienteId = li.dataset.id || li.getAttribute('data-cliente-id');
-          if (!clienteId && selectCliente && selectCliente.options[index]) {
-            clienteId = selectCliente.options[index].value;
-          }
-
+          const clienteId = li.dataset.id || li.getAttribute('data-cliente-id') || "";
           const textoNombre = (li.textContent || 'este cliente').trim().split('\n')[0].trim();
 
           li.classList.add('flex', 'items-center', 'justify-between', 'py-3', 'gap-3');
@@ -522,7 +536,7 @@
           btnDel.type = 'button';
           btnDel.className = 'btn-eliminar-cliente shrink-0 text-[10px] uppercase tracking-[0.15em] text-red-700 hover:text-white hover:bg-red-700 border border-red-700/30 px-2.5 py-1 rounded-sm transition-all cursor-pointer';
           btnDel.textContent = 'Eliminar';
-          btnDel.onclick = () => eliminarClienteUI(clienteId, textoNombre);
+          btnDel.onclick = () => eliminarClienteUI(index, textoNombre, clienteId);
 
           li.appendChild(btnDel);
         });
