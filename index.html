@@ -28,7 +28,6 @@
     }
   </script>
   <style>
-    /* Estilos base refinados para mantener compatibilidad con tus clases actuales */
     body {
       font-family: 'Karla', sans-serif;
       background-color: #f7f4ef;
@@ -82,7 +81,6 @@
       border-color: #1c1a17;
       background-color: rgba(28, 26, 23, 0.04);
     }
-    /* Animación suave al cambiar de pestaña */
     .main-tab-content {
       animation: fadeIn 0.35s ease-out;
     }
@@ -191,7 +189,7 @@
       </main>
     </div>
 
-    <!-- SECCIÓN 2: REGISTRARSE -->
+    <!-- SECCIÓN 2: REGISTRARSE Y GESTIÓN DE CLIENTES -->
     <div id="registro-section" class="main-tab-content hidden max-w-5xl mx-auto px-5 sm:px-8 py-14 md:py-20">
       <div class="mb-10">
         <p class="text-[11px] uppercase tracking-[0.3em] text-muted mb-2">Comunidad MAISON</p>
@@ -217,12 +215,13 @@
           </div>
         </form>
 
+        <!-- DIRECTORIO CON BOTÓN DE ELIMINAR AUTOMÁTICO -->
         <div class="lg:col-span-5 bg-white p-6 sm:p-8 rounded-sm shadow-xs border border-ink/10">
           <div class="flex items-center justify-between border-b border-ink/10 pb-4 mb-4">
             <h3 class="font-serif text-2xl">Clientes Activos</h3>
             <span class="text-[10px] uppercase tracking-widest text-muted">Directorio</span>
           </div>
-          <ul id="listaClientes" class="divide-y divide-ink/10 max-h-72 overflow-y-auto text-sm pr-1"></ul>
+          <ul id="listaClientes" class="divide-y divide-ink/10 max-h-80 overflow-y-auto text-sm pr-1"></ul>
         </div>
       </div>
     </div>
@@ -413,7 +412,7 @@
 
   <script src="script.js"></script>
 
-  <!-- Scripts auxiliares de UI (Subpestañas y Menú Móvil) -->
+  <!-- Scripts auxiliares de UI, Menú Móvil y Eliminación de Clientes -->
   <script>
     function cambiarSubSeccionConsultas(tipo) {
       const subvistaStock = document.getElementById('subvista-stock');
@@ -455,6 +454,82 @@
       toggleMenuMovil();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    // --- FUNCIÓN PARA ELIMINAR CLIENTES ---
+    async function eliminarClienteUI(id, nombreCliente) {
+      if (!id) {
+        alert("No se pudo identificar el ID del cliente.");
+        return;
+      }
+      if (!confirm(`¿Seguro que deseas eliminar a "${nombreCliente}" del directorio?`)) return;
+
+      try {
+        // Intenta con la ruta estándar /api/clientes/:id
+        let res = await fetch(`/api/clientes/${id}`, { method: 'DELETE' });
+        
+        // Si tu backend usa /clientes/:id sin /api, hace el respaldo automático
+        if (res.status === 404) {
+          res = await fetch(`/clientes/${id}`, { method: 'DELETE' });
+        }
+
+        if (res.ok) {
+          const toast = document.getElementById('toast');
+          if (toast) {
+            toast.textContent = "Cliente eliminado correctamente";
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+          }
+          // Recarga la lista de clientes usando tu función existente en script.js
+          if (typeof cargarClientes === 'function') {
+            cargarClientes();
+          } else if (typeof loadClientes === 'function') {
+            loadClientes();
+          } else {
+            location.reload();
+          }
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          alert(errData.error || errData.message || "No se pudo eliminar el cliente (puede tener pedidos asociados).");
+        }
+      } catch (err) {
+        console.error("Error al eliminar cliente:", err);
+        alert("Error de conexión con el servidor.");
+      }
+    }
+
+    // Inyecta automáticamente el botón de eliminar en cada elemento de #listaClientes
+    document.addEventListener('DOMContentLoaded', () => {
+      const lista = document.getElementById('listaClientes');
+      const selectCliente = document.getElementById('selectCliente');
+      if (!lista) return;
+
+      const observer = new MutationObserver(() => {
+        const items = lista.querySelectorAll('li');
+        items.forEach((li, index) => {
+          if (li.querySelector('.btn-eliminar-cliente')) return;
+
+          // Obtiene el ID desde data-id o emparejándolo con el <select id="selectCliente"> del carrito
+          let clienteId = li.dataset.id || li.getAttribute('data-cliente-id');
+          if (!clienteId && selectCliente && selectCliente.options[index]) {
+            clienteId = selectCliente.options[index].value;
+          }
+
+          const textoNombre = (li.textContent || 'este cliente').trim().split('\n')[0].trim();
+
+          li.classList.add('flex', 'items-center', 'justify-between', 'py-3', 'gap-3');
+
+          const btnDel = document.createElement('button');
+          btnDel.type = 'button';
+          btnDel.className = 'btn-eliminar-cliente shrink-0 text-[10px] uppercase tracking-[0.15em] text-red-700 hover:text-white hover:bg-red-700 border border-red-700/30 px-2.5 py-1 rounded-sm transition-all cursor-pointer';
+          btnDel.textContent = 'Eliminar';
+          btnDel.onclick = () => eliminarClienteUI(clienteId, textoNombre);
+
+          li.appendChild(btnDel);
+        });
+      });
+
+      observer.observe(lista, { childList: true });
+    });
   </script>
 </body>
 </html>
