@@ -87,7 +87,7 @@ if (productosEl) {
     if (add) agregarAlCarrito(Number(add.dataset.add));
     if (edit) editarProducto(Number(edit.dataset.edit));
     if (del && confirm('¿Eliminar este producto?')) {
-      try { await api(`/productos/${del.dataset.del}`, { method: 'DELETE' }); toast('Producto eliminado'); cargarProductos(); }
+      try { await api(`/productos/${del.dataset.del}`, { method: 'DELETE' }); toast('Producto eliminado'); cargarProductos(); cargarStock(); }
       catch (err) { toast(err.message, false); }
     }
   });
@@ -131,7 +131,25 @@ if (formProducto) {
       toast(id ? 'Producto actualizado' : 'Producto agregado');
       resetFormProducto();
       cargarProductos();
+      cargarStock();
     } catch (err) { toast(err.message, false); }
+  });
+}
+
+/* ---------- Registro de Categorías ---------- */
+const formCategoria = $('#formCategoria');
+if (formCategoria) {
+  formCategoria.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(e.target));
+    try {
+      await api('/categorias', { method: 'POST', body: JSON.stringify(data) });
+      toast('¡Categoría creada con éxito!');
+      e.target.reset();
+      await cargarCategorias();
+    } catch (err) {
+      toast(err.message, false);
+    }
   });
 }
 
@@ -141,7 +159,7 @@ async function cargarClientes() {
   const listaClientes = $('#listaClientes');
   if (listaClientes) {
     listaClientes.innerHTML = state.clientes.map((c) => `
-      <li class="py-3 flex justify-between gap-4">
+      <li class="py-3 flex justify-between gap-4" data-id="${c.id}">
         <div><p>${esc(c.nombre)}</p><p class="text-xs text-black/50">${esc(c.correo)} · ${esc(c.telefono || '—')}</p></div>
         <span class="text-xs text-black/40">${new Date(c.fecha_registro).toLocaleDateString('es-MX')}</span>
       </li>`).join('') || '<li class="py-3 text-black/50">Sin clientes</li>';
@@ -167,7 +185,7 @@ if (formCliente) {
   });
 }
 
-/* ---------- Carrito y pedidos ---------- */
+/* ---------- Carrito y Pedidos ---------- */
 function agregarAlCarrito(id) {
   const p = state.productos.find((x) => x.id === id);
   const item = state.carrito.find((x) => x.id === id);
@@ -218,8 +236,8 @@ if (itemsCarritoEl) {
   });
 }
 
-const abrir = () => { $('#carrito')?.classList.add('open'); $('#overlay')?.classList.remove('hidden'); };
-const cerrar = () => { $('#carrito')?.classList.remove('open'); $('#overlay')?.classList.add('hidden'); };
+const abrir = () => { $('#carrito')?.classList.add('translate-x-0'); $('#overlay')?.classList.remove('hidden'); };
+const cerrar = () => { $('#carrito')?.classList.add('translate-x-full'); $('#overlay')?.classList.add('hidden'); };
 
 $('#btnCarrito')?.addEventListener('click', abrir);
 $('#cerrarCarrito')?.addEventListener('click', cerrar);
@@ -238,47 +256,93 @@ if (formPedido) {
       }) });
       toast(`Pedido #${r.id} creado por ${money(r.total)}`);
       state.carrito = []; renderCarrito(); cerrar();
-      cargarProductos(); cargarPedidos();
+      cargarProductos(); cargarPedidos(); cargarStock(); cargarVentas();
     } catch (err) { toast(err.message, false); }
   });
 }
 
 async function cargarPedidos() {
-  const pedidos = await api('/pedidos');
-  const estados = ['pendiente', 'pagado', 'enviado', 'entregado', 'cancelado'];
-  const tablaPedidos = $('#tablaPedidos');
-  if (tablaPedidos) {
-    tablaPedidos.innerHTML = pedidos.map((p) => `
-      <tr>
-        <td class="py-3">${p.id}</td>
-        <td>${esc(p.cliente)}</td>
-        <td>${money(p.total)}</td>
-        <td><select data-estado="${p.id}" class="bg-transparent border-b border-black/20">
-          ${estados.map((s) => `<option ${s === p.estado ? 'selected' : ''}>${s}</option>`).join('')}
-        </select></td>
-        <td>${new Date(p.fecha_pedido).toLocaleString('es-MX')}</td>
-      </tr>`).join('') || '<tr><td colspan="5" class="py-3 text-black/50">Sin pedidos</td></tr>';
-  }
+  try {
+    const pedidos = await api('/pedidos');
+    const estados = ['pendiente', 'pagado', 'enviado', 'entregado', 'cancelado'];
+    const tablaPedidos = $('#tablaPedidos');
+    if (tablaPedidos) {
+      tablaPedidos.innerHTML = pedidos.map((p) => `
+        <tr>
+          <td class="py-4 px-6">${p.id}</td>
+          <td class="py-4 px-6">${esc(p.cliente)}</td>
+          <td class="py-4 px-6">${money(p.total)}</td>
+          <td class="py-4 px-6"><select data-estado="${p.id}" class="bg-transparent border-b border-black/20 py-1">
+            ${estados.map((s) => `<option ${s === p.estado ? 'selected' : ''}>${s}</option>`).join('')}
+          </select></td>
+          <td class="py-4 px-6">${new Date(p.fecha_pedido).toLocaleString('es-MX')}</td>
+        </tr>`).join('') || '<tr><td colspan="5" class="py-4 px-6 text-black/50">Sin pedidos</td></tr>';
+    }
+  } catch (e) { console.error(e); }
 }
 
 const tablaPedidosEl = $('#tablaPedidos');
 if (tablaPedidosEl) {
   tablaPedidosEl.addEventListener('change', async (e) => {
     const s = e.target.closest('[data-estado]'); if (!s) return;
-    try { await api(`/pedidos/${s.dataset.estado}`, { method: 'PATCH', body: JSON.stringify({ estado: s.value }) }); toast('Estado actualizado'); }
+    try { 
+      await api(`/pedidos/${s.dataset.estado}`, { method: 'PATCH', body: JSON.stringify({ estado: s.value }) }); 
+      toast('Estado actualizado'); 
+      cargarVentas();
+    }
     catch (err) { toast(err.message, false); }
   });
 }
 
+/* ---------- Consultas: Stock y Artículos Vendidos ---------- */
+async function cargarStock() {
+  try {
+    const prods = await api('/productos');
+    const tablaStock = $('#tabla-stock-content');
+    if (tablaStock) {
+      tablaStock.innerHTML = prods.map(p => `
+        <tr>
+          <td class="py-4 px-6">${p.id}</td>
+          <td class="py-4 px-6 font-medium">${esc(p.nombre)}</td>
+          <td class="py-4 px-6">${esc(p.categoria || 'General')}</td>
+          <td class="py-4 px-6"><span class="${p.stock > 0 ? 'text-black' : 'text-red-600 font-bold'}">${p.stock} unidades</span></td>
+          <td class="py-4 px-6">${money(p.precio)}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="5" class="py-4 px-6 text-black/50">No hay stock registrado</td></tr>';
+    }
+  } catch (e) { console.error(e); }
+}
+
+async function cargarVentas() {
+  try {
+    const pedidos = await api('/pedidos');
+    // Filtramos los pedidos que estén pagados, enviados o entregados para considerarlos ventas concretadas
+    const ventasValidas = pedidos.filter(p => ['pagado', 'enviado', 'entregado'].includes(p.estado));
+    const tablaVentas = $('#tabla-ventas-content');
+    if (tablaVentas) {
+      tablaVentas.innerHTML = ventasValidas.map(v => `
+        <tr>
+          <td class="py-4 px-6">#${v.id}</td>
+          <td class="py-4 px-6 font-medium">${esc(v.cliente || 'Cliente General')}</td>
+          <td class="py-4 px-6">1 (Orden #${v.id})</td>
+          <td class="py-4 px-6 font-semibold">${money(v.total)}</td>
+          <td class="py-4 px-6">${new Date(v.fecha_pedido).toLocaleString('es-MX')}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="5" class="py-4 px-6 text-black/50">Aún no hay artículos vendidos o pagados</td></tr>';
+    }
+  } catch (e) { console.error(e); }
+}
+
+/* ---------- Inicialización general ---------- */
 (async function init() {
   try {
     await cargarCategorias();
-    await Promise.all([cargarProductos(), cargarClientes(), cargarPedidos()]);
+    await Promise.all([cargarProductos(), cargarClientes(), cargarPedidos(), cargarStock(), cargarVentas()]);
     renderCarrito();
   } catch (err) { toast('No se pudo conectar con el servidor: ' + err.message, false); }
 })();
 
-/* ---------- Control de Pestañas Principales y Secundarias ---------- */
+/* ---------- Control de Pestañas Principales ---------- */
 function switchMainTab(sectionId, evt) {
   document.querySelectorAll('.main-tab-content').forEach(el => {
     el.classList.add('hidden');
@@ -289,93 +353,18 @@ function switchMainTab(sectionId, evt) {
   if (target) {
     target.classList.remove('hidden');
     target.classList.add('active');
-
-  /* ---------- Registrar Categoría desde la Web ---------- */
-const formCategoria = $('#formCategoria');
-if (formCategoria) {
-  formCategoria.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.target));
-    try {
-      await api('/categorias', { method: 'POST', body: JSON.stringify(data) });
-      toast('¡Categoría creada con éxito!');
-      e.target.reset();
-      await cargarCategorias(); // Recarga los filtros y selectores al instante
-    } catch (err) {
-      toast(err.message, false);
-    }
-  });
-}
     
-    // SI ABRES LA PESTAÑA DE ADMINISTRAR, RECARGA LAS CATEGORÍAS AL INSTANTE
     if (sectionId === 'admin-section') {
       cargarCategorias();
     }
-  }
-
-  document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active', 'font-bold', 'border-b-2', 'border-black'));
-  if (evt && evt.currentTarget) {
-    evt.currentTarget.classList.add('active', 'font-bold', 'border-b-2', 'border-black');
-  }
-}
-
-function switchSubTab(subId, evt) {
-  const container = evt.currentTarget.closest('#cuestionarios-section');
-  if (!container) return;
-
-  container.querySelectorAll('.sub-tab-content').forEach(el => {
-    el.classList.add('hidden');
-    el.classList.remove('active');
-  });
-
-  const target = document.getElementById(subId);
-  if (target) {
-    target.classList.remove('hidden');
-    target.classList.add('active');
-  }
-
-  container.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('font-bold', 'border-b-2', 'border-black'));
-  evt.currentTarget.classList.add('font-bold', 'border-b-2', 'border-black');
-}
-
-/* ---------- Control de Modos Administrador (Login / Registro) ---------- */
-function cambiarModoAdmin(modo) {
-  const loginForm = $('#formLoginAdmin');
-  const registroForm = $('#formRegistroAdmin');
-  const btnLogin = $('#tabBtnLogin');
-  const btnRegistro = $('#tabBtnRegistro');
-
-  if (modo === 'login') {
-    loginForm.classList.remove('hidden');
-    registroForm.classList.add('hidden');
-    btnLogin.classList.add('font-bold', 'border-b-2', 'border-black');
-    btnLogin.classList.remove('text-black/40');
-    btnRegistro.classList.remove('font-bold', 'border-b-2', 'border-black');
-    btnRegistro.classList.add('text-black/40');
-  } else {
-    registroForm.classList.remove('hidden');
-    loginForm.classList.add('hidden');
-    btnRegistro.classList.add('font-bold', 'border-b-2', 'border-black');
-    btnRegistro.classList.remove('text-black/40');
-    btnLogin.classList.remove('font-bold', 'border-b-2', 'border-black');
-    btnLogin.classList.add('text-black/40');
-  }
-}
-
-const formRegistroAdmin = $('#formRegistroAdmin');
-if (formRegistroAdmin) {
-  formRegistroAdmin.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.target));
-    try {
-      const res = await api('/admin/registrar', { method: 'POST', body: JSON.stringify(data) });
-      if (res.success) {
-        toast('¡Administrador creado con éxito! Ya puedes iniciar sesión.');
-        e.target.reset();
-        cambiarModoAdmin('login'); // Regresa al formulario de inicio de sesión
-      }
-    } catch (err) {
-      toast(err.message || 'Error al registrar administrador', false);
+    if (sectionId === 'consultas-section') {
+      cargarStock();
+      cargarVentas();
     }
-  });
+  }
+
+  document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active', 'font-semibold', 'text-ink', 'border-b', 'border-ink'));
+  if (evt && evt.currentTarget) {
+    evt.currentTarget.classList.add('active', 'font-semibold', 'text-ink', 'border-b', 'border-ink');
+  }
 }
